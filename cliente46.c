@@ -34,7 +34,7 @@ int main(int *argc, char *argv[])
 	char option;
 	int ipversion=AF_INET;//IPv4 por defecto
 	char ipdest[256];
-	char default_ip4[16]="192.168.66.238";
+	char default_ip4[16]="192.168.1.104";
 	char default_ip6[64]="::1";
 	
 
@@ -126,7 +126,7 @@ int main(int *argc, char *argv[])
 						//buffer_in[recibidos] = 0x00;
 						
 						//printf("datos recibidos [%d bytes] %s \r\n", recibidos, buffer_in);
-						estado = S_HELO;
+						//estado = S_HELO;
 
 						break;
 					case S_HELO:
@@ -139,13 +139,13 @@ int main(int *argc, char *argv[])
 						}
 						else 
 							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s",input, CRLF);
-							estado = S_MAIL;
+							//estado = S_MAIL;
 						 
 						
 						break;   
 
 
-						//hola 
+						
 
 
 					case S_MAIL:
@@ -158,7 +158,7 @@ int main(int *argc, char *argv[])
 						}
 						else
 						sprintf_s(buffer_out, sizeof(buffer_out), "%s %s%s", MF, input, CRLF);
-						estado = S_RCPT;
+						//estado = S_RCPT;
 
 
 						break;
@@ -172,7 +172,7 @@ int main(int *argc, char *argv[])
 						}
 						else
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s %s%s",RCPT,input,CRLF);
-						    estado=S_DATA;
+						    //estado=S_DATA;
 						break;
 					case S_DATA: //TODO mandar cada linea al servido hasta que llegue a un punto
 						printf("CLIENTE> estan correctos los datos: ");
@@ -187,7 +187,7 @@ int main(int *argc, char *argv[])
 				
 					}
 
-					if(estado!=S_HELO){ // y distinto del data
+					if(estado!=S_WELC){ // y distinto del data
 						enviados=send(sockfd,buffer_out,(int)strlen(buffer_out),0);
 						if(enviados==SOCKET_ERROR){
 							 estado=S_QUIT;
@@ -210,38 +210,57 @@ int main(int *argc, char *argv[])
 						
 						switch (estado) {
 
+						case S_WELC:
+							buffer_in[recibidos] = 0x00;
+							printf(buffer_in);
+							if (strncmp(buffer_in, OK, 3) == 0) {
+
+								estado++;
+
+							}
+							else estado = S_WELC;
+
+							break;
+
 						case S_HELO:
 							buffer_in[recibidos] = 0x00;
 							printf(buffer_in);
-							if (strncmp(buffer_in, OK, 2) == 0) {
+							if (strncmp(buffer_in, OKW, 3) == 0) {
 
 								estado++;
-								printf("hola");
+
 							}
 							else estado = S_HELO;
 
-						    break;
+							break;
 
 						case S_MAIL:
 							buffer_in[recibidos] = 0x00;
 							printf(buffer_in);
-							if (strncmp(buffer_in,OK,2)==0)
+							if (strncmp(buffer_in, OKW, 3) == 0)
 							{
 								estado++;
 							}
 							else estado = S_MAIL;
-							
 
-						
-						    break;
+
+
+							break;
 						case S_RCPT:
+							buffer_in[recibidos] = 0x00;
+							printf(buffer_in);
+							if (strncmp(buffer_in, OKW, 3) == 0)
+							{
+								estado++;
+							}
+							else estado = S_RCPT;
 
 
-						   break;
+							break;
 						case S_DATA:
 
 
-						   break;
+							break;
                         }
 						// maquina de estados
 						//buffer_in[recibidos]=0x00;

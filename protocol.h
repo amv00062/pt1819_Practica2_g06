@@ -9,7 +9,7 @@
 
 
 // RESPUESTAS A COMANDOS DE APLICACION
-#define OK  "2"
+#define OK  "220"
 #define OKDATA "4"
 #define ER  "5"
 #define OKW "250"
