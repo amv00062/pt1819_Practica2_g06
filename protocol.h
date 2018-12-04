@@ -10,7 +10,7 @@
 
 // RESPUESTAS A COMANDOS DE APLICACION
 #define OK  "220"
-#define OKDATA "4"
+#define OKDATA "354"
 #define ER  "5"
 #define OKW "250"
 
@@ -23,8 +23,10 @@
 #define S_MAIL 2
 #define S_RCPT 3
 #define S_DATA 4
-#define S_QUIT 5
-#define S_EXIT 6
+#define S_MENS 5
+#define S_FINM 6
+#define S_QUIT 7
+#define S_EXIT 8
 
 //PUERTO DEL SERVICIO
 #define TCP_SERVICE_PORT  25
@@ -34,4 +36,5 @@
 // #define mod "mod"
 #define MF "mail from:"
 #define RCPT "rcpt to:"
-#define DATA "data:"
+#define DATA "data"
+#define FMENS "."

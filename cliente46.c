@@ -174,17 +174,33 @@ int main(int *argc, char *argv[])
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s %s%s",RCPT,input,CRLF);
 						    //estado=S_DATA;
 						break;
+
+
+
 					case S_DATA: //TODO mandar cada linea al servido hasta que llegue a un punto
-						printf("CLIENTE> estan correctos los datos: ");
+						printf("CLIENTE> si estan correctos los datos pulse alguna tecla de lo contrario pulse enter:  ");
 						gets_s(input, sizeof(input));
 						if(strlen(input)==0){
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",input,CRLF);
-							estado=S_QUIT;
+							estado=S_MAIL;
 						}
 						else
-							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",input,CRLF);
+							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",DATA,CRLF);
 						break;
-				
+
+					case S_MENS:
+						printf("CLIENTE> empiece a envia el contenido del mensaje:('para terminar pulse enter')");
+						gets_s(input, sizeof(input));
+						if (strlen(input) == 0) {
+							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s", FMENS, CRLF);
+						}
+						else
+							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s", input, CRLF);
+						break;
+					case S_FINM:
+						//sprintf_s(buffer_out, sizeof(buffer_out), "%s%s", FMENS, CRLF);
+
+						break;
 					}
 
 					if(estado!=S_WELC){ // y distinto del data
@@ -194,73 +210,87 @@ int main(int *argc, char *argv[])
 							 continue;
 						}
 					}  
-						// si estado es distinto del data
-					recibidos=recv(sockfd,buffer_in,512,0);
-					if(recibidos<=0){
-						DWORD error=GetLastError();
-						if(recibidos<0){
-							printf("CLIENTE> Error %d en la recepción de datos\r\n",error);
-							estado=S_QUIT;
-						}
-						else{
-							printf("CLIENTE> Conexión con el servidor cerrada\r\n");
-							estado=S_QUIT;
-						}
-					}else{ 
+					if (estado != S_MENS) {	// si estado es distinto del data
+						recibidos = recv(sockfd, buffer_in, 512, 0);
+						if (recibidos <= 0) {
+							DWORD error = GetLastError();
+							if (recibidos < 0) {
+								printf("CLIENTE> Error %d en la recepción de datos\r\n", error);
+								estado = S_QUIT;
+							}
+							else {
+								printf("CLIENTE> Conexión con el servidor cerrada\r\n");
+								estado = S_QUIT;
+							}
+						}else {
 						
-						switch (estado) {
+							switch (estado) {
 
-						case S_WELC:
-							buffer_in[recibidos] = 0x00;
-							printf(buffer_in);
-							if (strncmp(buffer_in, OK, 3) == 0) {
+							case S_WELC:
+								buffer_in[recibidos] = 0x00;
+								printf(buffer_in);
+								if (strncmp(buffer_in, OK, 3) == 0) {
 
-								estado++;
+									estado++;
 
+								}
+								else estado = S_WELC;
+
+								break;
+
+							case S_HELO:
+								buffer_in[recibidos] = 0x00;
+								printf(buffer_in);
+								if (strncmp(buffer_in, OKW, 3) == 0) {
+
+									estado++;
+
+								}
+								else estado = S_HELO;
+
+								break;
+
+							case S_MAIL:
+								buffer_in[recibidos] = 0x00;
+								printf(buffer_in);
+								if (strncmp(buffer_in, OKW, 3) == 0)
+								{
+									estado++;
+								}
+								else estado = S_MAIL;
+
+
+
+								break;
+							case S_RCPT:
+								buffer_in[recibidos] = 0x00;
+								printf(buffer_in);
+								if (strncmp(buffer_in, OKW, 3) == 0)
+								{
+									estado++;
+								}
+								else estado = S_RCPT;
+
+
+								break;
+							case S_DATA:
+								buffer_in[recibidos] = 0x00;
+								printf(buffer_in);
+								if (strncmp(buffer_in, OKDATA, 3) == 0)
+								{
+									estado++;
+								}
+								else estado = S_MENS;
+								break;
+							case S_FINM:
+								buffer_in[recibidos] = 0x00;
+								printf(buffer_in);
+								if (strncmp(buffer_in, OKW, 3) == 0)
+								{
+									estado = S_MAIL;
+								}
+								break;
 							}
-							else estado = S_WELC;
-
-							break;
-
-						case S_HELO:
-							buffer_in[recibidos] = 0x00;
-							printf(buffer_in);
-							if (strncmp(buffer_in, OKW, 3) == 0) {
-
-								estado++;
-
-							}
-							else estado = S_HELO;
-
-							break;
-
-						case S_MAIL:
-							buffer_in[recibidos] = 0x00;
-							printf(buffer_in);
-							if (strncmp(buffer_in, OKW, 3) == 0)
-							{
-								estado++;
-							}
-							else estado = S_MAIL;
-
-
-
-							break;
-						case S_RCPT:
-							buffer_in[recibidos] = 0x00;
-							printf(buffer_in);
-							if (strncmp(buffer_in, OKW, 3) == 0)
-							{
-								estado++;
-							}
-							else estado = S_RCPT;
-
-
-							break;
-						case S_DATA:
-
-
-							break;
                         }
 						// maquina de estados
 						//buffer_in[recibidos]=0x00;
