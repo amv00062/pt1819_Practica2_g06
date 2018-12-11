@@ -120,15 +120,7 @@ int main(int *argc, char *argv[])
 
 				
 					switch(estado){
-					case S_WELC:
-						// Se recibe el mensaje de bienvenida
-						//recibidos = recv(sockfd, buffer_in, 512, 0);
-						//buffer_in[recibidos] = 0x00;
-						
-						//printf("datos recibidos [%d bytes] %s \r\n", recibidos, buffer_in);
-						//estado = S_HELO;
-
-						break;
+					
 					case S_HELO:
 						// establece la conexion de aplicacion 
 						printf("CLIENTE> Introduzca el comando helo (enter para salir): \r\n");
@@ -139,8 +131,7 @@ int main(int *argc, char *argv[])
 						}
 						else 
 							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s",input, CRLF);
-							//estado = S_MAIL;
-						 
+							
 						
 						break;   
 
@@ -158,7 +149,7 @@ int main(int *argc, char *argv[])
 						}
 						else
 						sprintf_s(buffer_out, sizeof(buffer_out), "%s %s%s", MF, input, CRLF);
-						//estado = S_RCPT;
+						
 
 
 						break;
@@ -172,7 +163,7 @@ int main(int *argc, char *argv[])
 						}
 						else
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s %s%s",RCPT,input,CRLF);
-						    //estado=S_DATA;
+						  
 						break;
 
 
@@ -198,10 +189,7 @@ int main(int *argc, char *argv[])
 						else
 							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s", input, CRLF);
 						break;
-					case S_FINM:
-						//sprintf_s(buffer_out, sizeof(buffer_out), "%s%s", FMENS, CRLF);
-
-						break;
+					
 					}
 
 					if(estado!=S_WELC){ // y distinto del data
@@ -293,11 +281,8 @@ int main(int *argc, char *argv[])
 								break;
 							}
                         }
-						// maquina de estados
-						//buffer_in[recibidos]=0x00;
-						//printf(buffer_in);
-						//if(estado!=S_DATA && strncmp(buffer_in,OK,2)==0) 
-							//estado++;  
+						// fin maquina de estados
+						
 					}
 
 				}while(estado!=S_QUIT);		
