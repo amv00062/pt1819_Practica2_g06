@@ -34,7 +34,7 @@ int main(int *argc, char *argv[])
 	char option;
 	int ipversion=AF_INET;//IPv4 por defecto
 	char ipdest[256];
-	char default_ip4[16]="192.168.1.104";
+	char default_ip4[16]="127.0.0.1";
 	char default_ip6[64]="::1";
 	
 
@@ -131,7 +131,7 @@ int main(int *argc, char *argv[])
 						break;
 					case S_HELO:
 						// establece la conexion de aplicacion 
-						printf("CLIENTE> Introduzca el comando helo (enter para salir): ");
+						printf("CLIENTE> Introduzca el comando helo (enter para salir): \r\n");
 						gets_s(input,sizeof(input));
 						if(strlen(input) == 0){
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",input,CRLF);
@@ -150,7 +150,7 @@ int main(int *argc, char *argv[])
 
 					case S_MAIL:
 
-						printf("CLIENTE> Introduzca  mail from: 'usuario' (enter para salir): ");
+						printf("CLIENTE> Introduzca  mail from: 'usuario' (enter para salir):\r\n ");
 						gets_s(input, sizeof(input));
 						if (strlen(input) == 0) {
 							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s%s",input, CRLF);
@@ -164,7 +164,7 @@ int main(int *argc, char *argv[])
 						break;
 
 					case S_RCPT:
-						printf("CLIENTE> Introduzca el usuario al que quiere enviar (enter para salir): ");
+						printf("CLIENTE> Introduzca el usuario al que quiere enviar (enter para salir):\r\n ");
 						gets_s(input,sizeof(input));
 						if(strlen(input)==0){
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",input,CRLF);
@@ -178,7 +178,7 @@ int main(int *argc, char *argv[])
 
 
 					case S_DATA: //TODO mandar cada linea al servido hasta que llegue a un punto
-						printf("CLIENTE> si estan correctos los datos pulse alguna tecla de lo contrario pulse enter:  ");
+						printf("CLIENTE> si estan correctos los datos pulse alguna tecla de lo contrario pulse enter: \r\n ");
 						gets_s(input, sizeof(input));
 						if(strlen(input)==0){
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",input,CRLF);
@@ -189,10 +189,11 @@ int main(int *argc, char *argv[])
 						break;
 
 					case S_MENS:
-						printf("CLIENTE> empiece a envia el contenido del mensaje:('para terminar pulse enter')");
+						printf("CLIENTE> empiece a envia el contenido del mensaje:('para terminar pulse enter')\r\n");
 						gets_s(input, sizeof(input));
 						if (strlen(input) == 0) {
 							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s", FMENS, CRLF);
+							estado = S_FINM;
 						}
 						else
 							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s", input, CRLF);
