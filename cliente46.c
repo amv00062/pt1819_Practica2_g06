@@ -6,11 +6,11 @@ Univerisdad de Jaén
 
 Fichero: cliente.c
 Versión: 2.0
-Fecha: 09/2017
+Fecha: 12/2018
 Descripción:
 	Cliente sencillo TCP.
 
-Autor: Juan Carlos Cuevas Martínez
+Autor: Ángel Moreno Vázquez y Sergio Caballero Garrido
 
 *******************************************************/
 #include <stdio.h>
@@ -55,12 +55,12 @@ int main(int *argc, char *argv[])
 	}
 	//Fin: Inicialización Windows sockets
 	
-	printf("**************\r\nCLIENTE TCP SENCILLO SOBRE IPv4 o IPv6\r\n*************\r\n");
+	printf("*******************\r\nCLIENTE TCP SENCILLO SOBRE IPv4 o IPv6\r\n******************\r\n");
 	
 
 	do{
 
-		printf("CLIENTE> ¿Qué versión de IP desea usar? 6 para IPv6, 4 para IPv4 [por defecto] ");
+		printf("CLIENTE> Que version de IP desea usar? 6 para IPv6, 4 para IPv4 [por defecto] ");
 		gets_s(ipdest, sizeof(ipdest));
 
 		if (strcmp(ipdest, "6") == 0) {
@@ -123,7 +123,7 @@ int main(int *argc, char *argv[])
 					
 					case S_HELO:
 						// establece la conexion de aplicacion 
-						printf("CLIENTE> Introduzca el comando helo (enter para salir): \r\n");
+						printf("CLIENTE> Introduzca 'helo' (enter para salir): \r\n");
 						gets_s(input,sizeof(input));
 						if(strlen(input) == 0){
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",input,CRLF);
@@ -141,7 +141,7 @@ int main(int *argc, char *argv[])
 
 					case S_MAIL:
 
-						printf("CLIENTE> Introduzca  mail from: 'usuario' (enter para salir):\r\n ");
+						printf("CLIENTE> Introduzca el usuario remitente (enter para salir):\r\n mail from: ");
 						gets_s(input, sizeof(input));
 						if (strlen(input) == 0) {
 							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s%s",input, CRLF);
@@ -155,7 +155,7 @@ int main(int *argc, char *argv[])
 						break;
 
 					case S_RCPT:
-						printf("CLIENTE> Introduzca el usuario al que quiere enviar (enter para salir):\r\n ");
+						printf("CLIENTE> Introduzca el usuario destinatario (enter para salir):\r\n rcpt to: ");
 						gets_s(input,sizeof(input));
 						if(strlen(input)==0){
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",input,CRLF);
@@ -169,7 +169,7 @@ int main(int *argc, char *argv[])
 
 
 					case S_DATA: //TODO mandar cada linea al servido hasta que llegue a un punto
-						printf("CLIENTE> si estan correctos los datos pulse alguna tecla de lo contrario pulse enter: \r\n ");
+						printf("CLIENTE> Si estan correctos los datos escriba 'si' de lo contrario pulse enter: \r\n");
 						gets_s(input, sizeof(input));
 						if(strlen(input)==0){
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",input,CRLF);
@@ -180,7 +180,7 @@ int main(int *argc, char *argv[])
 						break;
 
 					case S_MENS:
-						printf("CLIENTE> empiece a envia el contenido del mensaje:('para terminar pulse enter')\r\n");
+						printf("CLIENTE> Contenido del mensaje 'data' (linea vacia y enter para enviar '.'):\r\n");
 						gets_s(input, sizeof(input));
 						if (strlen(input) == 0) {
 							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s", FMENS, CRLF);
