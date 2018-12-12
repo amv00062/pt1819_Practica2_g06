@@ -37,7 +37,8 @@ int main(int *argc, char *argv[])
 	char default_ip4[16]="192.168.1.104";
 	char default_ip6[64]="::1";
 	
-
+	unsigned long ipdestl;
+	struct in_addr address;
 
 	WORD wVersionRequested;
 	WSADATA wsaData;
@@ -79,7 +80,18 @@ int main(int *argc, char *argv[])
 		else{
 			printf("CLIENTE> Introduzca la IP destino (pulsar enter para IP por defecto): ");
 			gets_s(ipdest,sizeof(ipdest));
-
+			ipdestl = inet_addr(ipdest);
+			if (ipdestl == INADDR_NONE) {
+				//La dirección introducida por teclado no es correcta o
+				//corresponde con un dominio.
+				struct hostent *host;
+				host = gethostbyname(ipdest);
+				if (host != NULL) {
+					memcpy(&address, host->h_addr_list[0], 4);
+					printf("\nDireccion %s\n", inet_ntoa(address));
+					strcpy(ipdest, inet_ntoa(address));
+				}
+			}
 			//Dirección por defecto según la familia
 			if(strcmp(ipdest,"")==0 && ipversion==AF_INET)
 				strcpy_s(ipdest,sizeof(ipdest),default_ip4);
