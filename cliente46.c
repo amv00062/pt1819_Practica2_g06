@@ -81,12 +81,12 @@ int main(int *argc, char *argv[])
 			printf("CLIENTE> Introduzca la IP destino (pulsar enter para IP por defecto):\r\n ");
 			gets_s(ipdest,sizeof(ipdest));
 
+			//Para el cambio de dominio a dirección IP:
 			ipdestl = inet_addr(ipdest);
 			if (ipdestl == INADDR_NONE) {
-				//La dirección introducida por teclado no es correcta o
-				//corresponde con un dominio.
+				//Cuando la direccion introducida es un dominio en texto
 				struct hostent *host;
-				host = gethostbyname(ipdest);
+				host = gethostbyname(ipdest);//obtiene la dirección ip del dominio
 				if (host != NULL) {
 					memcpy(&address, host->h_addr_list[0], 4);
 					printf("\nDireccion %s\n", inet_ntoa(address));
@@ -94,7 +94,6 @@ int main(int *argc, char *argv[])
 				}
 			}
 
-		
 			//Dirección por defecto según la familia
 			if(strcmp(ipdest,"")==0 && ipversion==AF_INET)
 				strcpy_s(ipdest,sizeof(ipdest),default_ip4);
@@ -102,9 +101,7 @@ int main(int *argc, char *argv[])
 			if(strcmp(ipdest,"")==0 && ipversion==AF_INET6)
 				strcpy_s(ipdest, sizeof(ipdest),default_ip6);
 
-
-	
-
+			//Para IPv4, realiza la conexión a la dirección introducida
 			if(ipversion==AF_INET){
 				memset(&server_in4, 0, sizeof(server_in4));
 				server_in4.sin_family=AF_INET;
@@ -114,7 +111,7 @@ int main(int *argc, char *argv[])
 				server_in=(struct sockaddr*)&server_in4;
 				address_size = sizeof(server_in4);
 			}
-
+			//Para IPv6, realiza la conexión a la dirección introducida
 			if(ipversion==AF_INET6){
 				memset(&server_in6, 0, sizeof(server_in6));
 				server_in6.sin6_family=AF_INET6;
@@ -123,8 +120,6 @@ int main(int *argc, char *argv[])
 				server_in=(struct sockaddr*)&server_in6;
 				address_size = sizeof(server_in6);
 			}
-			//añadir en preprocesador la funcion winsock-no noseque deprecated
-
 
 			estado=S_WELC;
 
@@ -133,8 +128,6 @@ int main(int *argc, char *argv[])
 			
 				//Inicio de la máquina de estados
 				do{
-
-				
 					switch(estado){
 					
 					case S_HELO:
@@ -148,15 +141,11 @@ int main(int *argc, char *argv[])
 						else 
 							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s",input, CRLF);
 							
-						
 						break;   
 
 
-						
-
-
 					case S_MAIL:
-
+						//Petición del usuario que enviará el correo
 						printf("CLIENTE> Introduzca el usuario remitente (enter para salir):\r\n mail from: ");
 						gets_s(input, sizeof(input));
 						if (strlen(input) == 0) {
@@ -166,10 +155,10 @@ int main(int *argc, char *argv[])
 						else
 						sprintf_s(buffer_out, sizeof(buffer_out), "%s %s%s", MF, input, CRLF);
 						
-
 						break;
 
 					case S_RCPT:
+						//Petición del usuario al que va destinado el correo
 						printf("CLIENTE> Introduzca el usuario destinatario (enter para salir):\r\n rcpt to: ");
 						gets_s(input,sizeof(input));
 						if(strlen(input)==0){
@@ -181,9 +170,8 @@ int main(int *argc, char *argv[])
 						  
 						break;
 
-
-
-					case S_DATA: //TODO mandar cada linea al servido hasta que llegue a un punto
+					case S_DATA: 
+						//Comprobación por el usuario si los datos introducidos son correctos
 						printf("CLIENTE> Si estan correctos los datos escriba 'si' de lo contrario pulse enter: \r\n");
 						gets_s(input, sizeof(input));
 						if(strlen(input)==0){
@@ -195,6 +183,8 @@ int main(int *argc, char *argv[])
 						break;
 
 					case S_MENS:
+						//Envío del mensaje, se pueden enviar tantas líneas como el usuario desee
+						//Para finalizar el envio de líneas se dejará una línea en blanco y se pulsara "enter"
 						printf("CLIENTE> Contenido del mensaje 'data' (linea vacia y enter para enviar '.'):\r\n");
 						gets_s(input, sizeof(input));
 						if (strlen(input) == 0) {
@@ -229,14 +219,12 @@ int main(int *argc, char *argv[])
 						}else {
 						
 							switch (estado) {
-
+								//Maquina de estados para recibir los códigos del servidor
 							case S_WELC:
 								buffer_in[recibidos] = 0x00;
 								printf(buffer_in);
 								if (strncmp(buffer_in, OK, 3) == 0) {
-
 									estado++;
-
 								}
 								else estado = S_WELC;
 
@@ -246,9 +234,7 @@ int main(int *argc, char *argv[])
 								buffer_in[recibidos] = 0x00;
 								printf(buffer_in);
 								if (strncmp(buffer_in, OKW, 3) == 0) {
-
 									estado++;
-
 								}
 								else estado = S_HELO;
 
@@ -262,8 +248,6 @@ int main(int *argc, char *argv[])
 									estado++;
 								}
 								else estado = S_MAIL;
-
-
 
 								break;
 							case S_RCPT:
