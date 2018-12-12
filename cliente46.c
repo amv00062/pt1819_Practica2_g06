@@ -6,11 +6,11 @@ Univerisdad de Jaén
 
 Fichero: cliente.c
 Versión: 2.0
-Fecha: 09/2017
+Fecha: 12/2018
 Descripción:
 	Cliente sencillo TCP.
 
-Autor: Juan Carlos Cuevas Martínez
+Autor: Ángel Moreno Vázquez y Sergio Caballero Garrido
 
 *******************************************************/
 #include <stdio.h>
@@ -33,12 +33,11 @@ int main(int *argc, char *argv[])
 	int estado=S_HELO;
 	char option;
 	int ipversion=AF_INET;//IPv4 por defecto
-	char ipdest[256];
-	char default_ip4[16]="192.168.1.104";
+	char ipdest[256],ipdestl;
+	char default_ip4[16]="127.0.0.1";
 	char default_ip6[64]="::1";
 	
-	unsigned long ipdestl;
-	struct in_addr address;
+
 
 	WORD wVersionRequested;
 	WSADATA wsaData;
@@ -56,12 +55,12 @@ int main(int *argc, char *argv[])
 	}
 	//Fin: Inicialización Windows sockets
 	
-	printf("**************\r\nCLIENTE TCP SENCILLO SOBRE IPv4 o IPv6\r\n*************\r\n");
+	printf("*******************\r\nCLIENTE TCP SENCILLO SOBRE IPv4 o IPv6\r\n******************\r\n");
 	
 
 	do{
 
-		printf("CLIENTE> ¿Qué versión de IP desea usar? 6 para IPv6, 4 para IPv4 [por defecto] ");
+		printf("CLIENTE> Que version de IP desea usar? 6 para IPv6, 4 para IPv4 [por defecto] ");
 		gets_s(ipdest, sizeof(ipdest));
 
 		if (strcmp(ipdest, "6") == 0) {
@@ -78,20 +77,23 @@ int main(int *argc, char *argv[])
 			exit(-1);
 		}
 		else{
-			printf("CLIENTE> Introduzca la IP destino (pulsar enter para IP por defecto): ");
+			printf("CLIENTE> Introduzca la IP destino (pulsar enter para IP por defecto):\r\n ");
 			gets_s(ipdest,sizeof(ipdest));
-			ipdestl = inet_addr(ipdest);
+
+
+		/*	ipdestl = inet_addr(ipdest);
 			if (ipdestl == INADDR_NONE) {
-				//La dirección introducida por teclado no es correcta o
-				//corresponde con un dominio.
 				struct hostent *host;
 				host = gethostbyname(ipdest);
 				if (host != NULL) {
-					memcpy(&address, host->h_addr_list[0], 4);
-					printf("\nDireccion %s\n", inet_ntoa(address));
-					strcpy(ipdest, inet_ntoa(address));
+				
+					memcpy(&ipdest, host->h_addr_list[0], 4);
+					//printf("\nDirecion %s\n", inet_ntoa(ipdestl));
 				}
+				
 			}
+			*/
+		
 			//Dirección por defecto según la familia
 			if(strcmp(ipdest,"")==0 && ipversion==AF_INET)
 				strcpy_s(ipdest,sizeof(ipdest),default_ip4);
@@ -103,10 +105,11 @@ int main(int *argc, char *argv[])
 	
 
 			if(ipversion==AF_INET){
+				memset(&server_in4, 0, sizeof(server_in4));
 				server_in4.sin_family=AF_INET;
 				server_in4.sin_port=htons(TCP_SERVICE_PORT);
-				//server_in4.sin_addr.s_addr=inet_addr(ipdest);
-				inet_pton(ipversion,ipdest,&server_in4.sin_addr.s_addr);
+				server_in4.sin_addr.s_addr=inet_addr(ipdest);
+				inet_pton(AF_INET,ipdest,&server_in4.sin_addr.s_addr);
 				server_in=(struct sockaddr*)&server_in4;
 				address_size = sizeof(server_in4);
 			}
@@ -132,18 +135,10 @@ int main(int *argc, char *argv[])
 
 				
 					switch(estado){
-					case S_WELC:
-						// Se recibe el mensaje de bienvenida
-						//recibidos = recv(sockfd, buffer_in, 512, 0);
-						//buffer_in[recibidos] = 0x00;
-						
-						//printf("datos recibidos [%d bytes] %s \r\n", recibidos, buffer_in);
-						//estado = S_HELO;
-
-						break;
+					
 					case S_HELO:
 						// establece la conexion de aplicacion 
-						printf("CLIENTE> Introduzca el comando helo (enter para salir): ");
+						printf("CLIENTE> Introduzca 'helo' (enter para salir): \r\n");
 						gets_s(input,sizeof(input));
 						if(strlen(input) == 0){
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",input,CRLF);
@@ -151,8 +146,7 @@ int main(int *argc, char *argv[])
 						}
 						else 
 							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s",input, CRLF);
-							//estado = S_MAIL;
-						 
+							
 						
 						break;   
 
@@ -162,7 +156,7 @@ int main(int *argc, char *argv[])
 
 					case S_MAIL:
 
-						printf("CLIENTE> Introduzca  mail from: 'usuario' (enter para salir): ");
+						printf("CLIENTE> Introduzca el usuario remitente (enter para salir):\r\n mail from: ");
 						gets_s(input, sizeof(input));
 						if (strlen(input) == 0) {
 							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s%s",input, CRLF);
@@ -170,13 +164,12 @@ int main(int *argc, char *argv[])
 						}
 						else
 						sprintf_s(buffer_out, sizeof(buffer_out), "%s %s%s", MF, input, CRLF);
-						//estado = S_RCPT;
-
+						
 
 						break;
 
 					case S_RCPT:
-						printf("CLIENTE> Introduzca el usuario al que quiere enviar (enter para salir): ");
+						printf("CLIENTE> Introduzca el usuario destinatario (enter para salir):\r\n rcpt to: ");
 						gets_s(input,sizeof(input));
 						if(strlen(input)==0){
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",input,CRLF);
@@ -184,13 +177,13 @@ int main(int *argc, char *argv[])
 						}
 						else
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s %s%s",RCPT,input,CRLF);
-						    //estado=S_DATA;
+						  
 						break;
 
 
 
 					case S_DATA: //TODO mandar cada linea al servido hasta que llegue a un punto
-						printf("CLIENTE> si estan correctos los datos pulse alguna tecla de lo contrario pulse enter:  ");
+						printf("CLIENTE> Si estan correctos los datos escriba 'si' de lo contrario pulse enter: \r\n");
 						gets_s(input, sizeof(input));
 						if(strlen(input)==0){
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",input,CRLF);
@@ -201,18 +194,16 @@ int main(int *argc, char *argv[])
 						break;
 
 					case S_MENS:
-						printf("CLIENTE> empiece a envia el contenido del mensaje:('para terminar pulse enter')");
+						printf("CLIENTE> Contenido del mensaje 'data' (linea vacia y enter para enviar '.'):\r\n");
 						gets_s(input, sizeof(input));
 						if (strlen(input) == 0) {
 							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s", FMENS, CRLF);
+							estado = S_FINM;
 						}
 						else
 							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s", input, CRLF);
 						break;
-					case S_FINM:
-						//sprintf_s(buffer_out, sizeof(buffer_out), "%s%s", FMENS, CRLF);
-
-						break;
+					
 					}
 
 					if(estado!=S_WELC){ // y distinto del data
@@ -304,11 +295,8 @@ int main(int *argc, char *argv[])
 								break;
 							}
                         }
-						// maquina de estados
-						//buffer_in[recibidos]=0x00;
-						//printf(buffer_in);
-						//if(estado!=S_DATA && strncmp(buffer_in,OK,2)==0) 
-							//estado++;  
+						// fin maquina de estados
+						
 					}
 
 				}while(estado!=S_QUIT);		
