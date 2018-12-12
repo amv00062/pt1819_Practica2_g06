@@ -33,7 +33,7 @@ int main(int *argc, char *argv[])
 	int estado=S_HELO;
 	char option;
 	int ipversion=AF_INET;//IPv4 por defecto
-	char ipdest[256];
+	char ipdest[256],ipdestl;
 	char default_ip4[16]="127.0.0.1";
 	char default_ip6[64]="::1";
 	
@@ -77,9 +77,23 @@ int main(int *argc, char *argv[])
 			exit(-1);
 		}
 		else{
-			printf("CLIENTE> Introduzca la IP destino (pulsar enter para IP por defecto): ");
+			printf("CLIENTE> Introduzca la IP destino (pulsar enter para IP por defecto):\r\n ");
 			gets_s(ipdest,sizeof(ipdest));
 
+
+		/*	ipdestl = inet_addr(ipdest);
+			if (ipdestl == INADDR_NONE) {
+				struct hostent *host;
+				host = gethostbyname(ipdest);
+				if (host != NULL) {
+				
+					memcpy(&ipdest, host->h_addr_list[0], 4);
+					//printf("\nDirecion %s\n", inet_ntoa(ipdestl));
+				}
+				
+			}
+			*/
+		
 			//Dirección por defecto según la familia
 			if(strcmp(ipdest,"")==0 && ipversion==AF_INET)
 				strcpy_s(ipdest,sizeof(ipdest),default_ip4);
@@ -91,10 +105,11 @@ int main(int *argc, char *argv[])
 	
 
 			if(ipversion==AF_INET){
+				memset(&server_in4, 0, sizeof(server_in4));
 				server_in4.sin_family=AF_INET;
 				server_in4.sin_port=htons(TCP_SERVICE_PORT);
-				//server_in4.sin_addr.s_addr=inet_addr(ipdest);
-				inet_pton(ipversion,ipdest,&server_in4.sin_addr.s_addr);
+				server_in4.sin_addr.s_addr=inet_addr(ipdest);
+				inet_pton(AF_INET,ipdest,&server_in4.sin_addr.s_addr);
 				server_in=(struct sockaddr*)&server_in4;
 				address_size = sizeof(server_in4);
 			}
@@ -150,7 +165,6 @@ int main(int *argc, char *argv[])
 						else
 						sprintf_s(buffer_out, sizeof(buffer_out), "%s %s%s", MF, input, CRLF);
 						
-
 
 						break;
 
