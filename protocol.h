@@ -38,4 +38,5 @@
 #define RCPT "rcpt to:"
 #define DATA "data"
 #define FMENS "."
-
+#define HELO "helo "
+#define RESET "rset"

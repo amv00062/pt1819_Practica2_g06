@@ -89,7 +89,7 @@ int main(int *argc, char *argv[])
 				host = gethostbyname(ipdest);//obtiene la dirección ip del dominio
 				if (host != NULL) {
 					memcpy(&address, host->h_addr_list[0], 4);
-					printf("\nDireccion %s\n", inet_ntoa(address));
+					printf("Direccion %s\n", inet_ntoa(address));
 					strcpy(ipdest, inet_ntoa(address));
 				}
 			}
@@ -130,16 +130,31 @@ int main(int *argc, char *argv[])
 				do{
 					switch(estado){
 					
-					case S_HELO:
+					case S_HELO: //TODO revisar el helo
 						// establece la conexion de aplicacion 
-						printf("CLIENTE> Introduzca 'helo' (enter para salir): \r\n");
+						printf("CLIENTE> Introduzca 'host' (enter para su direccion IP): \r\n");
 						gets_s(input,sizeof(input));
+						//Para el cambio de dominio a dirección IP:
+						ipdestl = inet_addr(input);
+						if (ipdestl == INADDR_NONE) {
+							//Cuando la direccion introducida es un dominio en texto
+							struct hostent *host;
+							host = gethostbyname(input);//obtiene la dirección ip del dominio
+							if (host != NULL) {
+								memcpy(&address, host->h_addr_list[0], 4);
+								printf("Direccion de tu equipo: %s\n", inet_ntoa(address));
+								strcpy(input, inet_ntoa(address));
+							}
+							else strcpy(input, "");
+
+							
+						}
 						if(strlen(input) == 0){
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",input,CRLF);
-							estado=S_QUIT;
+							estado=S_HELO;
 						}
 						else 
-							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s",input, CRLF);
+							sprintf_s(buffer_out, sizeof(buffer_out), "%s%s%s",HELO,inet_ntoa(address), CRLF);
 							
 						break;   
 
@@ -170,13 +185,13 @@ int main(int *argc, char *argv[])
 						  
 						break;
 
-					case S_DATA: 
+					case S_DATA:  
 						//Comprobación por el usuario si los datos introducidos son correctos
 						printf("CLIENTE> Si estan correctos los datos escriba 'si' de lo contrario pulse enter: \r\n");
 						gets_s(input, sizeof(input));
 						if(strlen(input)==0){
-							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",input,CRLF);
-							estado=S_MAIL;
+							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",RESET,CRLF);
+							estado=S_HELO;
 						}
 						else
 							sprintf_s (buffer_out, sizeof(buffer_out), "%s%s",DATA,CRLF);
